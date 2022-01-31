@@ -1,23 +1,48 @@
 <%- include("layouts/header")  -%>
 
-
 <h1><%= title %></h1>
+<% if(messages.error) { %>
+ <%= messages.error %>
+ <% } %>
 
-<form method="post" action="/users/login">
+<form method="POST" action="/users/login">
 
     <div class="form-group">
         <label for="">Username</label>
-        <input type="text" name="username" class="form-control"  placeholder="Username"/>
+        <input type="text" name="username" class="form-control"  placeholder="Username" required/>
     </div>
 
     <div class="form-group">
         <label for="">Password</label>
-        <input type="password" name="password" class="form-control"  placeholder="Password"/>
+        <div class="input-group" id="show_hide_password">
+            <input class="form-control" type="password" name="password" placeholder="Password" required/>
+            <div class="input-group-addon">
+              <a href=""><i class="bi bi-eye-slash" aria-hidden="true"></i></a>
+            </div>
+          </div>
     </div>
-
+    
    
     <button type="submit" class="btn btn-primary">Log In</button>
 </form>
 
+<script>
+    $(document).ready(function() {
+    $("#show_hide_password a").on('click', function(event) {
+        event.preventDefault();
+        if($('#show_hide_password input').attr("type") == "text")
+        {
+            $('#show_hide_password input').attr('type', 'password');
+            $('#show_hide_password i').addClass( "fa-eye-slash" );
+            $('#show_hide_password i').removeClass( "fa-eye" );
+        } else if($('#show_hide_password input').attr("type") == "password")
+        {
+            $('#show_hide_password input').attr('type', 'text');
+            $('#show_hide_password i').removeClass( "fa-eye-slash" );
+            $('#show_hide_password i').addClass( "fa-eye" );
+        }
+    });
+});
+</script>
 
 <%- include("layouts/footer") -%>

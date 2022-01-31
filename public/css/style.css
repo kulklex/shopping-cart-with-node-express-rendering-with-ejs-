@@ -29,14 +29,15 @@ img.cpi{
 table.alignmiddle td{
     vertical-align: middle !important;
 }
+
 .alert-error {
     color: #a94442;
     background-color: #f2dede;
     border-color: #ebccd1;
 }
 
-/*
+
 .pp{
     position: absolute;
     left: -3000px;
-}*/
+}

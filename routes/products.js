@@ -3,12 +3,12 @@ const router = express.Router();
 const fs = require('fs-extra');
 const Product = require('../models/product');
 const Category = require('../models/categorymodel');
-
+const verify = require('../config/verify');
+const isUser = verify.isUser;
 
 
 // Get All Products
-router.get('/', (req, res) => {
-
+router.get('/', (req, res) => {  
     Product.find((err, products)=> {
         if(err){ 
         console.log(err);
@@ -23,24 +23,21 @@ router.get('/', (req, res) => {
 
 
 //Get products by Categories
-router.get('/:category', (req, res) => {
-    let categorySlug = req.body.category;
+router.get('/:category',  (req, res) => {
+    let categorySlug = req.params.category;
 
-    Category.findOne({slug: categorySlug}).then((page) => {
-        Product.find({category: categorySlug}).then( (err, products) => {
+    Category.findOne({slug: categorySlug}, (err,c) => {
+
+        Product.find({category: categorySlug}, (err, products) => {
             if(err){
             console.log(err);
-            res.statusCode = 500;
-            res.end('error');
             }
              res.render('cat_products', {
-                    title: title,
+                    title: c.title,
                     products: products
                 });
             
         });
-    }).catch((e)=> {
-        res.status(400).send(e);
     });
 });
 
@@ -48,8 +45,9 @@ router.get('/:category', (req, res) => {
 //Get Product details
 router.get('/:category/:product', (req, res) => {
     let galleryImages = null;
+    var loggedIn = (req.isAuthenticated()) ? true : false;
 
-    Product.findOne({slug: req.body.product}, (err, product)=> {
+    Product.findOne({slug: req.params.product}, (err, product)=> {
         if (err){
         console.log(err);
         } else {
@@ -64,7 +62,8 @@ router.get('/:category/:product', (req, res) => {
                     res.render('product', {
                         title: product.title,
                         p: product,
-                        galleryImages: galleryImages
+                        galleryImages: galleryImages,
+                        loggedIn: loggedIn
                     });
                 }
             });

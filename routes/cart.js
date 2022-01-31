@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs-extra');
+const paystack = require('../config/paystack');
 const Product = require('../models/product');
+const {initializePayment, verifyPayment} = require('../config/paystack')(paystack);
 
 
 
 
 // Get add Products to cart
 router.get('/add/:product', (req, res) => {
-    let slug = req.body.product;
+    let slug = req.params.product;
     
     Product.findOne({slug: slug}, (err, p)=>{
         if (err){
@@ -46,7 +48,7 @@ router.get('/add/:product', (req, res) => {
         }
 
             //console.log(req.session.cart);
-            req.flash('Success', 'Product Added');
+            req.flash('success', 'Product Added');
             res.redirect('back');
     });
 });
@@ -69,7 +71,7 @@ router.get('/checkout', (req, res)=>{
 
 //Get Update product
 router.get('/update/:product', (req, res)=> {
-    let slug = req.body.product;
+    let slug = req.params.product;
     let cart = req.session.cart;
     let action = req.query.action;
 
@@ -107,10 +109,15 @@ router.get('/clear', (req, res) => {
 })
 
 
+  
+
+router.post('/buynow', (req, res) => {
+   
+});
 
 router.get('/buynow', (req, res) => {
-    delete req.session.cart;
-    res.status(400);
+   res.render('buynow');
+
 })
 
 

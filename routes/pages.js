@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Page = require('../models/pages_model');
+const {checkAuthenticated} = require('./users')
 
 
 router.get('/', (req, res) => {
@@ -19,7 +20,7 @@ router.get('/', (req, res) => {
 
 //Get Page
 router.get('/:slug', (req, res) =>{
-    let slug = req.body.slug;
+    let slug = req.params.slug;
 
     Page.findOne({slug: slug}, (err, page)=> {
         if(err)

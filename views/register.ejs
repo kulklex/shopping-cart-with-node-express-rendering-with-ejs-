@@ -6,7 +6,7 @@
 <form method="post" action="/users/register">
     <div class="form-group">
         <label for="">Name</label>
-        <input type="text" name="name" class="form-control"  placeholder="Name"/>
+        <input type="text" name="name" class="form-control"  max="20" min="3" placeholder="Name"/>
     </div>
 
     <div class="form-group">
@@ -16,17 +16,17 @@
 
     <div class="form-group">
         <label for="">Username</label>
-        <input type="text" name="username" class="form-control"  placeholder="Username"/>
+        <input type="text" name="username" class="form-control"  max="20" min="3"  placeholder="Username"/>
     </div>
 
     <div class="form-group">
         <label for="">Password</label>
-        <input type="password" name="password" class="form-control"  placeholder="Password"/>
+        <input type="password" name="password" class="form-control" max="20" min="6" placeholder="Password"/>
     </div>
 
     <div class="form-group">
         <label for="">Confirm Password</label>
-        <input type="password" name="password2" class="form-control"  placeholder="Confirm Password"/>
+        <input type="password" name="password2" class="form-control" max="20" min="6"  placeholder="Confirm Password"/>
     </div>
 
     <button type="submit" class="btn btn-primary">Register</button>

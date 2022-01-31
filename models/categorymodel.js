@@ -20,8 +20,7 @@ async function createCategory() {
         slug: 'drinks'
     });
 
-    const result = await categ.save();
-    console.log(result);
+  
 }
 
 

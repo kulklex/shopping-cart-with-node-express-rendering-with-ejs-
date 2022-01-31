@@ -1,8 +1,15 @@
+const Joi = require('@hapi/joi');
+const jwt = require('jsonwebtoken');
+const config = require('config');
+const passport = require('passport');
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
-const passport = require('passport');
 const bcrypt = require('bcryptjs');
+const verify = require('../config/verify');
+const swal = require('sweetalert');
+const flash = require('connect-flash');
+
 
 //Get register Page
 router.get('/register', (req, res) => {
@@ -13,8 +20,22 @@ router.get('/register', (req, res) => {
 });
 
 
+
+
+//Get Login
+router.get('/login', (req, res, next) => {
+    
+    if(res.locals.user)res.redirect('/');
+    res.render('login', {
+        title: 'Log in'
+    });
+    next()
+});
+
+
+
 //Post Register Page
-router.post('/register', (req, res) => {
+router.post('/register',   async (req, res) => {
     let name = req.body.name;
     let email = req.body.email;
     let username = req.body.username;
@@ -35,77 +56,104 @@ router.post('/register', (req, res) => {
             title: 'Register'
         });
     } else {
-        User.findOne({username: username}), function(err, user) {
-            if(err){
-                console.log(err);
-            }
-            if(user) {
-                req.flash('danger', 'Username exits');
-                res.redirect('/users/register');
-            } else {
+        
+  const userExists = await User.findOne({username: req.body.username})
+    if(userExists) {
+        req.flash('Danger', 'Username Already Exists')
+        } else {
+                let salt = await bcrypt.genSalt(10);
+               let hash = await bcrypt.hash(req.body.password, salt);
+
                 let user = new User({
                     name: name,
                     email: email,
                     username: username,
-                    password: password, 
-                    admin: 1
+                    password: hash, 
+                    admin: 0,
                 });
 
-                user.save(function(err) {
-                    if(err) {
-                        console.log(err);
-                    } else {
-                       req.flash('success', 'You are now registered');
-                       res.redirect('/users/login');
-                    }
-                });
-
-                bcrypt.genSalt(10, (err, salt)=> {
-                    if(err) {console.log(err);}
-                    bcrypt.hash(user.password, salt, (err, hash)=>{
-                        if(err) {console.log(err);}
-
-                        user.password = hash;
-                    });
-                });
-                    
-                  
-                
+               await user.save();
+               const token = user.generateAuthToken()
+                req.flash('success', 'You are now registered');
+                res.header('auth-token', token);
+                res.redirect('/users/login');
+               }
             }
-        }
-    }
 })
 
-//Get Login
-router.get('/login', (req, res) => {
 
-    if(res.locals.user)
-    {
-        res.redirect('/');
-    }
-    res.render('login', {
-        title: 'Log in'
-    });
-});
 
+ 
 //Post Login
 router.post('/login', (req, res, next) => {
-
     passport.authenticate('local', {
         successRedirect: '/',
         failureRedirect: '/users/login',
-        failureFlash: true
-    }) (req, res, next);
+        failureFlash: true,
+    })(req, res, next);
 });
+
+ /*
+
+router.post('/login', async (req, res) => {
+const schema = Joi.object({
+    username: Joi.string().required(),
+    password: Joi.string().required()
+})
+ 
+const {error} = schema.validate(req.body);
+if(error) { res.status(400).send(error.details[0].message)}
+
+let user = await User.findOne({username: req.body.username})
+console.log(user)
+if(!user) {
+    console.log('Username not found');
+    req.flash('danger', ' Invalid Username or Password');
+    res.redirect('/users/login');
+} else {  
+    const validPassword = await bcrypt.compare(req.body.password, user.password);
+    if(!validPassword) {
+    console.log('Wrong password');
+    req.flash('danger', 'Invalid Username or Password');
+    res.redirect('/users/login');
+    } else {
+    const token = user.generateAuthToken();  
+    console.log(token)
+    res.header('Access-Control-Expose-Headers','auth-token').header('auth-token', token).redirect('/');
+    }
+}
+});
+*/
+
+
+// router.post('/login', passport.authenticate('local', {
+//     successRedirect: '/',
+//     failureRedirect: '/users/login',
+//     failureFlash: true
+// }) )
+
+
+
+//Get Logged In User
+router.get('/me',  verify.isUser,  async (req, res)=>{
+   const user = await User.findById(req.user._id).select('-password');
+   res.send(user);
+
+})
+
+
 
 
 
 //Get Logout
 router.get('/logout', (req, res) => {
 
-    req.logout;
-
+    req.logout();
     req.flash('success', 'You are now logged out');
     res.redirect('/users/login');
 });
+
+
+
+
 module.exports = router;

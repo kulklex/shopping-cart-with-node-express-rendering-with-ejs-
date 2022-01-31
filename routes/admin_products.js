@@ -7,12 +7,11 @@ const resizeImg = require('resize-img');
 const Product = require('../models/product');
 const Category = require('../models/categorymodel');
 const mv = require('mv');
-
-//router.use(isImage);
+const verify = require('../config/verify');
 
 
 //Get Products Index
-router.get('/',  (req, res) => {
+router.get('/', verify.isAdmin,  (req, res) => {
     let count;
     Product.count((err, c) => {
         count = c;
@@ -27,7 +26,7 @@ router.get('/',  (req, res) => {
 });
 
 //Get add Products 
-router.get('/add-product', (req, res) => {
+router.get('/add-product', verify.isAdmin, (req, res) => {
     let title = '';
     let desc = '';
     let price = '';
@@ -46,14 +45,14 @@ router.get('/add-product', (req, res) => {
 
 
 //Get Edit product
-router.get('/edit-product/:id', (req, res) => {
+router.get('/edit-product/:id', verify.isAdmin, (req, res) => {
     let errors;
     
     if (req.session.errors) errors = req.session.errors;
     req.session.errors = null;
     
         Category.find( (err, categories) => {
-            Product.findById(req.body.id, (err, p)=> {
+            Product.findById(req.params.id, (err, p)=> {
                 if(err){
                      console.log(err);
                 res.redirect('/admin/products');
@@ -205,7 +204,7 @@ if(!req.files){imageFile ="";}
     let price = req.body.price;
     let category = req.body.category;
     let pimage = req.body.pimage;
-    let id = req.body.id;
+    let id = req.params.id;
 
    
     let errors = req.validationErrors();
@@ -279,7 +278,7 @@ if(!req.files){imageFile ="";}
 // Post product gallery
 router.post('/product-gallery/:id',  (req, res) => {
     let productImages = req.files.file;
-    let id = req.body.id;
+    let id = req.params.id;
     let path = 'public/product_images/' + id + '/gallery/' + req.files.file.name;
     let thumbsPath = 'public/product_images/' + id + '/gallery/thumbs/' + req.files.file.name;
 
@@ -296,9 +295,9 @@ router.post('/product-gallery/:id',  (req, res) => {
 
 
 // Delete Image
-router.get('/delete-image/:image',  (req, res) => {
-    let originalImage = 'public/product_images/' + req.query.id + '/gallery/' + req.body.image;
-    let thumbImage = 'public/product_images/' + req.query.id + '/gallery/thumbs' + req.body.image;
+router.get('/delete-image/:image', verify.isAdmin,  (req, res) => {
+    let originalImage = 'public/product_images/' + req.query.id + '/gallery/' + req.params.image;
+    let thumbImage = 'public/product_images/' + req.query.id + '/gallery/thumbs' + req.params.image;
 
     fs.remove(originalImage, (err) => {
         if(err){
@@ -318,8 +317,8 @@ router.get('/delete-image/:image',  (req, res) => {
 
 
 // Delete product
-router.delete('/delete-product/:id',  (req, res) => {
-    let id = req.body.id;
+router.get('/delete-product/:id', verify.isAdmin, (req, res) => {
+    let id = req.params.id;
     let path = 'public/product_image/' + id;
 
     fs.remove(path, (err) => {

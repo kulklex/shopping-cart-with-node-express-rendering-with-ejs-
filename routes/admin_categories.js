@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const connectFlash = require('connect-flash');
+const verify = require('../config/verify');
 const Category = require('../models/categorymodel');
 
 
@@ -9,7 +9,7 @@ const Category = require('../models/categorymodel');
 
 
 
-router.get('/',  (req, res) => {
+router.get('/', verify.isAdmin,  (req, res) => {
     Category.find((err, categories) => {
         if (err) return console.log(err);
         res.render('admin/categories', {
@@ -20,7 +20,7 @@ router.get('/',  (req, res) => {
 });
 
 //Get Add Category
-router.get('/add-category', (req, res) => {
+router.get('/add-category', verify.isAdmin, (req, res) => {
     let title = '';
     res.render('admin/add_category', {
         title: title,
@@ -75,8 +75,8 @@ router.post('/add-category',  (req, res) => {
 
 
 //Get Edit Category
-router.get('/edit-category/:id', (req, res) => {
-    Category.findById(req.body.id, (err, category)=> {
+router.get('/edit-category/:id', verify.isAdmin, (req, res) => {
+    Category.findById(req.params.id, (err, category)=> {
         if(err) return console.log(err);
         
     res.render('admin/edit_category', {
@@ -95,7 +95,7 @@ router.post('/edit-category/:id',  (req, res) => {
    
     let title = req.body.title;
     let slug  = title.replace(/\s+/g, '-').toLowerCase();
-    let id = req.body.id;
+    let id = req.params.id;
 
     let errors = req.validationErrors();
     if(errors) {
@@ -131,7 +131,7 @@ router.post('/edit-category/:id',  (req, res) => {
                                      }
                         });
                         req.flash('success', 'Category edited!');
-                        res.redirect('/admin/categories/edit-category/'+ id); 
+                        res.redirect('/admin/categories'); 
                     });
                 });
 
@@ -143,8 +143,8 @@ router.post('/edit-category/:id',  (req, res) => {
 });
 
 // Delete Category
-router.get('/delete-category/:id',  (req, res) => {
-    Category.findByIdAndRemove(req.body.id, (err) => {
+router.get('/delete-category/:id', verify.isAdmin,  (req, res) => {
+    Category.findByIdAndRemove(req.params.id, (err) => {
         if (err) return console.log(err);
         Category.find((err, categories) => {
             if(err){
