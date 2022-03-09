@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs-extra');
-const paystack = require('../config/paystack');
 const Product = require('../models/product');
-const {initializePayment, verifyPayment} = require('../config/paystack')(paystack);
 
 
 
@@ -109,15 +107,14 @@ router.get('/clear', (req, res) => {
 })
 
 
-  
-
-router.post('/buynow', (req, res) => {
-   
-});
-
 router.get('/buynow', (req, res) => {
-   res.render('buynow');
-
+let cart = req.session.cart
+console.log(cart)
+let total = cart[0].price
+console.log(total)
+    res.render('paystack', {
+        total: total
+    })
 })
 
 

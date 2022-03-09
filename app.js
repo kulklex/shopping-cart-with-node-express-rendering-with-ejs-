@@ -1,4 +1,6 @@
 const config = require('config');
+const bodyParser = require('body-parser');
+const paystackR = require('./routes/paystackR')
 const mongoose = require('mongoose');
 const Page = require('./models/pages_model');
 const Category = require('./models/categorymodel');
@@ -9,10 +11,11 @@ const pages = require('./routes/pages');
 const users = require('./routes/users');
 const products = require('./routes/products'); 
 const cart = require('./routes/cart');
+
 const adminPages = require('./routes/admin_pages');
 const adminCategories = require('./routes/admin_categories');
 const adminProducts = require('./routes/admin_products');
-const bodyParser = require('body-parser');
+
 const session = require('express-session');
 const flash = require('connect-flash');
 const expressValidator = require('express-validator');
@@ -22,7 +25,14 @@ const app = express();
 
 
 
+// app.get('/paystack/pay', (req, res) => {
+    
+//   const name = req.body.name;
+//   const email =  req.body.email;
+//   const amount = req.body.amount;
 
+//   res.send(`message : ${name} ${email} ${amount}`)
+// })
 
 
  require('dotenv').config()
@@ -131,6 +141,7 @@ app.use((req, res, next) => {
 
 
 app.use(express.json());
+app.use('/', paystackR);
 app.use('/admin/pages', adminPages);
 app.use('/admin/categories', adminCategories);
 app.use('/admin/products', adminProducts);
