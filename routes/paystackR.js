@@ -1,20 +1,19 @@
-const https = require('https')
 const express = require('express');
 const request = require('request');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
-const {response} = require('express')
 const path = require('path');
 const Paystack = require('../models/paystackModel');
 
 
-const {initializePayment, verifyPayment} = require('../config/paystack')(request);
+
+const paystack = require('../config/paystack')(request);
 
 
 const router = express.Router()
-router.use(express.static(path.join(__dirname, 'public')));
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({extended: false}));
+router.use(express.static(path.join(__dirname, 'public/')));
 
 router.post('/paystack/pay', (req, res) => {
     const form = _.pick(req.body,['amount','email','full_name']);
@@ -23,24 +22,21 @@ router.post('/paystack/pay', (req, res) => {
     }
     form.amount *= 100;
    
-    initializePayment(form, (error, response, body)=>{
+    paystack.initializePayment(form, (error,  body)=>{
         if(error){
             //handle errors
             console.log(error);
             return res.redirect('/error')
         }
-        response.on('data', function(data){
-            const result = JSON.parse(body);
-            res.redirect(result.data.authorization_url)
+        response = JSON.parse(body);
+        res.redirect(response.data.authorization_url)
 
         });
-      
-    });
 })
 
 router.get('/paystack/callback', (req,res) => {
     const ref = req.query.reference;
-    verifyPayment(ref, (error,body)=>{
+    paystack.verifyPayment(ref, (error,body)=>{
         if(error){
             //handle errors appropriately
             console.log(error)

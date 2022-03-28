@@ -5,7 +5,7 @@ const paystack = (request) => {
         const options = {
             url : 'https://api.paystack.co/transaction/initialize',
             headers : {
-                authorization: MySecretKey,
+                Authorization: MySecretKey,
                 'content-type': 'application/json',
                 'cache-control': 'no-cache'    
             },
@@ -21,7 +21,7 @@ const paystack = (request) => {
         const options = {
             url : 'https://api.paystack.co/transaction/verify/'+encodeURIComponent(ref),
             headers : {
-                authorization: MySecretKey,
+                Authorization: MySecretKey,
                 'content-type': 'application/json',
                 'cache-control': 'no-cache'    
             }
