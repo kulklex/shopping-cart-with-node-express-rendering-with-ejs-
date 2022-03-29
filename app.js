@@ -1,4 +1,3 @@
-const config = require('config');
 const bodyParser = require('body-parser');
 const paystackR = require('./routes/paystackR')
 const mongoose = require('mongoose');
@@ -25,14 +24,6 @@ const app = express();
 
 
 
-// app.get('/paystack/pay', (req, res) => {
-    
-//   const name = req.body.name;
-//   const email =  req.body.email;
-//   const amount = req.body.amount;
-
-//   res.send(`message : ${name} ${email} ${amount}`)
-// })
 
 
  require('dotenv').config()
